@@ -104,7 +104,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
                 </div>
                 <button
                     type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    className="bg-violet-300 text-white px-4 py-2 rounded hover:bg-violet-400 transition-colors"
                 >
                     리뷰 작성
                 </button>

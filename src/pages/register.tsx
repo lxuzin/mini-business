@@ -91,7 +91,7 @@ export default function Register() {
                 </div>
                 <button
                     type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                    className="bg-sky-300 text-white px-4 py-2 rounded hover:bg-sky-400 transition-colors"
                 >
                     등록하기
                 </button>

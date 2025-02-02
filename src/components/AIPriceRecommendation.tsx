@@ -41,8 +41,8 @@ export const AIPriceRecommendation: React.FC<AIPriceRecommendationProps> = ({
                 className={`px-4 py-2 rounded ${
                     loading
                         ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700'
-                } text-white transition-colors`}
+                        : 'bg-amber-300 text-white hover:bg-amber-400 transition-colors'
+                }`}
             >
                 {loading ? '가격 분석 중...' : 'AI 가격 추천받기'}
             </button>

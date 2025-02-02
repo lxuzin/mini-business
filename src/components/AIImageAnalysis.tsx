@@ -18,7 +18,7 @@ export function AIImageAnalysis({ imageUrl, onTagsGenerated }: AIImageAnalysisPr
         <button
             onClick={handleAnalyze}
             type="button"
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+            className="bg-emerald-300 text-white px-4 py-2 rounded hover:bg-emerald-400 transition-colors"
             disabled={!imageUrl}
         >
             이미지 분석

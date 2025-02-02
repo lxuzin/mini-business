@@ -12,13 +12,13 @@ export default function Home() {
       <div className="space-y-4">
         <Link
           href="/products"
-          className="block bg-blue-500 text-white text-center px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+          className="block bg-rose-300 text-white text-center px-4 py-2 rounded hover:bg-rose-400 transition-colors"
         >
           상품 목록 보기
         </Link>
         <Link
           href="/register"
-          className="block bg-green-500 text-white text-center px-4 py-2 rounded hover:bg-green-600 transition-colors"
+          className="block bg-sky-300 text-white text-center px-4 py-2 rounded hover:bg-sky-400 transition-colors"
         >
           상품 등록하기
         </Link>
