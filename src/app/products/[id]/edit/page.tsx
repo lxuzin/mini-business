@@ -14,11 +14,11 @@ interface Product {
     tags: string[];
 }
 
-type Props = {
-    params: { id: string }
-}
-
-const EditProduct = ({ params }: Props) => {
+export default function EditProduct({
+    params,
+}: {
+    params: { id: string };
+}) {
     const router = useRouter();
     const [product, setProduct] = useState<Product | null>(null);
     const [name, setName] = useState('');
@@ -128,6 +128,4 @@ const EditProduct = ({ params }: Props) => {
             </form>
         </div>
     );
-};
-
-export default EditProduct;
+}
