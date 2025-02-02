@@ -1,45 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 
 interface AIImageAnalysisProps {
     imageUrl: string;
-    onAnalysisComplete: (description: string) => void;
+    onTagsGenerated: (tags: string[]) => void;
 }
 
-export const AIImageAnalysis: React.FC<AIImageAnalysisProps> = ({ imageUrl, onAnalysisComplete }) => {
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    const analyzeImage = async () => {
-        setIsAnalyzing(true);
-        setError(null);
-        
-        try {
-            // 여기에 Windsurf AI API 호출 로직이 들어갈 예정
-            // 현재는 더미 응답을 반환
-            const dummyDescription = "이 상품은 고품질의 제품으로 보입니다. 상세한 설명은 AI 통합 후 제공됩니다.";
-            
-            setTimeout(() => {
-                onAnalysisComplete(dummyDescription);
-                setIsAnalyzing(false);
-            }, 1000);
-        } catch (err) {
-            setError('이미지 분석 중 오류가 발생했습니다.');
-            setIsAnalyzing(false);
-        }
+export function AIImageAnalysis({ imageUrl, onTagsGenerated }: AIImageAnalysisProps) {
+    const handleAnalyze = async () => {
+        // 실제로는 AI 이미지 분석 API를 호출하겠지만, 여기서는 더미 데이터를 반환합니다.
+        const dummyTags = ['깨끗한', '상태좋음', '인기상품'];
+        onTagsGenerated(dummyTags);
     };
 
     return (
-        <div className="mt-4">
-            <button
-                onClick={analyzeImage}
-                disabled={isAnalyzing}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:bg-gray-400"
-            >
-                {isAnalyzing ? '분석 중...' : 'AI로 상품 설명 생성'}
-            </button>
-            {error && <p className="text-red-500 mt-2">{error}</p>}
-        </div>
+        <button
+            onClick={handleAnalyze}
+            type="button"
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+            disabled={!imageUrl}
+        >
+            이미지 분석
+        </button>
     );
-};
+}

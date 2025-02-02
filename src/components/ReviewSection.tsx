@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 
 interface Review {
-    id: number;
-    productId: number;
+    id: string;
+    productId: string;
     userName: string;
     rating: number;
     comment: string;
@@ -12,7 +12,7 @@ interface Review {
 }
 
 interface ReviewSectionProps {
-    productId: number;
+    productId: string;
 }
 
 export const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
@@ -37,7 +37,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ productId }) => {
         e.preventDefault();
         
         const review: Review = {
-            id: Date.now(),
+            id: Date.now().toString(),
             productId,
             userName: newReview.userName,
             rating: newReview.rating,
