@@ -1,18 +1,10 @@
+'use client';
+
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Inter } from 'next/font/google';
 import "./globals.css";
 import { Chatbot } from '@/components/Chatbot';
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,14 +15,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="ko">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.className} antialiased`}
-      >
+      <body className={`${inter.className} bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen transition-colors duration-200`}>
+        <ThemeToggle />
         {children}
         <Chatbot />
       </body>
