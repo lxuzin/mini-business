@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AIImageAnalysis } from '@/components/AIImageAnalysis';
 import { TagInput } from '@/components/TagInput';
+import { AIPriceRecommendation } from '@/components/AIPriceRecommendation';
 import { useRouter } from 'next/navigation';
 
 const Register: React.FC = () => {
@@ -29,6 +30,10 @@ const Register: React.FC = () => {
         setDescription(aiDescription);
     };
 
+    const handlePriceRecommendation = (recommendedPrice: number) => {
+        setPrice(recommendedPrice.toString());
+    };
+
     return (
         <div className="container mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4 dark:text-white">상품 등록</h1>
@@ -41,14 +46,17 @@ const Register: React.FC = () => {
                     className="border p-2 w-full rounded dark:bg-gray-800 dark:border-gray-700 dark:text-white"
                     required
                 />
-                <input
-                    type="number"
-                    placeholder="가격"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    className="border p-2 w-full rounded dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                    required
-                />
+                <div>
+                    <input
+                        type="number"
+                        placeholder="가격"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        className="border p-2 w-full rounded dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                        required
+                    />
+                    {name && <AIPriceRecommendation productName={name} onPriceRecommended={handlePriceRecommendation} />}
+                </div>
                 <input
                     type="text"
                     placeholder="이미지 URL"
