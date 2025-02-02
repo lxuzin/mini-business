@@ -13,7 +13,18 @@ interface Product {
     description: string;
 }
 
-export default function ProductDetail({ params }: { params: { id: string } }) {
+interface PageProps {
+    params: {
+        id: string;
+    };
+}
+
+export async function generateStaticParams() {
+    // 여기서는 빈 배열을 반환하고, 실제 제품 ID는 클라이언트 사이드에서 처리합니다
+    return [];
+}
+
+export default function ProductDetail({ params }: PageProps) {
     const [product, setProduct] = useState<Product | null>(null);
     const router = useRouter();
 

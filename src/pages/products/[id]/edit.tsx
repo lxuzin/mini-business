@@ -1,7 +1,5 @@
-'use client';
-
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { TagInput } from '@/components/TagInput';
 import { AIPriceRecommendation } from '@/components/AIPriceRecommendation';
 
@@ -14,19 +12,9 @@ interface Product {
     tags: string[];
 }
 
-interface PageProps {
-    params: {
-        id: string;
-    };
-}
-
-export async function generateStaticParams() {
-    // 여기서는 빈 배열을 반환하고, 실제 제품 ID는 클라이언트 사이드에서 처리합니다
-    return [];
-}
-
-export default function EditProduct({ params }: PageProps) {
+export default function EditProduct() {
     const router = useRouter();
+    const { id } = router.query;
     const [product, setProduct] = useState<Product | null>(null);
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
@@ -35,28 +23,30 @@ export default function EditProduct({ params }: PageProps) {
     const [tags, setTags] = useState<string[]>([]);
 
     useEffect(() => {
-        const storedProducts = localStorage.getItem('products');
-        if (storedProducts) {
-            const products = JSON.parse(storedProducts);
-            const foundProduct = products[parseInt(params.id)];
-            if (foundProduct) {
-                setProduct(foundProduct);
-                setName(foundProduct.name);
-                setPrice(foundProduct.price.toString());
-                setImageUrl(foundProduct.imageUrl);
-                setDescription(foundProduct.description);
-                setTags(foundProduct.tags);
+        if (id) {
+            const storedProducts = localStorage.getItem('products');
+            if (storedProducts) {
+                const products = JSON.parse(storedProducts);
+                const foundProduct = products[id as string];
+                if (foundProduct) {
+                    setProduct(foundProduct);
+                    setName(foundProduct.name);
+                    setPrice(foundProduct.price.toString());
+                    setImageUrl(foundProduct.imageUrl);
+                    setDescription(foundProduct.description);
+                    setTags(foundProduct.tags);
+                }
             }
         }
-    }, [params.id]);
+    }, [id]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const storedProducts = localStorage.getItem('products');
-        if (storedProducts) {
+        if (storedProducts && id) {
             const products = JSON.parse(storedProducts);
-            products[parseInt(params.id)] = {
-                id: parseInt(params.id),
+            products[id as string] = {
+                id: parseInt(id as string),
                 name,
                 price: parseFloat(price),
                 imageUrl,

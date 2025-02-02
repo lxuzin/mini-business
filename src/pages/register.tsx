@@ -1,80 +1,37 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import { TagInput } from '@/components/TagInput';
+import { AIImageAnalysis } from '@/components/AIImageAnalysis';
 import { AIPriceRecommendation } from '@/components/AIPriceRecommendation';
 
-interface Product {
-    id: number;
-    name: string;
-    price: number;
-    imageUrl: string;
-    description: string;
-    tags: string[];
-}
-
-interface PageProps {
-    params: {
-        id: string;
-    };
-}
-
-export async function generateStaticParams() {
-    // 여기서는 빈 배열을 반환하고, 실제 제품 ID는 클라이언트 사이드에서 처리합니다
-    return [];
-}
-
-export default function EditProduct({ params }: PageProps) {
+export default function Register() {
     const router = useRouter();
-    const [product, setProduct] = useState<Product | null>(null);
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     const [description, setDescription] = useState('');
     const [tags, setTags] = useState<string[]>([]);
 
-    useEffect(() => {
-        const storedProducts = localStorage.getItem('products');
-        if (storedProducts) {
-            const products = JSON.parse(storedProducts);
-            const foundProduct = products[parseInt(params.id)];
-            if (foundProduct) {
-                setProduct(foundProduct);
-                setName(foundProduct.name);
-                setPrice(foundProduct.price.toString());
-                setImageUrl(foundProduct.imageUrl);
-                setDescription(foundProduct.description);
-                setTags(foundProduct.tags);
-            }
-        }
-    }, [params.id]);
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const storedProducts = localStorage.getItem('products');
-        if (storedProducts) {
-            const products = JSON.parse(storedProducts);
-            products[parseInt(params.id)] = {
-                id: parseInt(params.id),
-                name,
-                price: parseFloat(price),
-                imageUrl,
-                description,
-                tags,
-            };
-            localStorage.setItem('products', JSON.stringify(products));
-            router.push('/products');
-        }
+        const products = storedProducts ? JSON.parse(storedProducts) : {};
+        const newId = Object.keys(products).length;
+        products[newId] = {
+            id: newId,
+            name,
+            price: parseFloat(price),
+            imageUrl,
+            description,
+            tags,
+        };
+        localStorage.setItem('products', JSON.stringify(products));
+        router.push('/products');
     };
-
-    if (!product) {
-        return <div>Loading...</div>;
-    }
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">상품 수정</h1>
+            <h1 className="text-2xl font-bold mb-4">상품 등록</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-sm font-medium mb-1">상품명</label>
@@ -104,13 +61,19 @@ export default function EditProduct({ params }: PageProps) {
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">이미지 URL</label>
-                    <input
-                        type="url"
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        className="w-full p-2 border rounded dark:bg-gray-700"
-                        required
-                    />
+                    <div className="flex space-x-2">
+                        <input
+                            type="url"
+                            value={imageUrl}
+                            onChange={(e) => setImageUrl(e.target.value)}
+                            className="w-full p-2 border rounded dark:bg-gray-700"
+                            required
+                        />
+                        <AIImageAnalysis
+                            imageUrl={imageUrl}
+                            onTagsGenerated={(generatedTags) => setTags([...tags, ...generatedTags])}
+                        />
+                    </div>
                 </div>
                 <div>
                     <label className="block text-sm font-medium mb-1">설명</label>
@@ -130,7 +93,7 @@ export default function EditProduct({ params }: PageProps) {
                     type="submit"
                     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
                 >
-                    수정하기
+                    등록하기
                 </button>
             </form>
         </div>
