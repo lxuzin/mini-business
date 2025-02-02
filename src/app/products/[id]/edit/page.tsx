@@ -1,37 +1,44 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { TagInput } from '@/components/TagInput';
 import { AIPriceRecommendation } from '@/components/AIPriceRecommendation';
 
 interface Product {
+    id: number;
     name: string;
-    price: string;
-    image: string;
+    price: number;
+    imageUrl: string;
     description: string;
     tags: string[];
 }
 
-export default function EditProduct({ params }: { params: { id: string } }) {
-    const [product, setProduct] = useState<Product>({
-        name: '',
-        price: '',
-        image: '',
-        description: '',
-        tags: []
-    });
+type Props = {
+    params: { id: string }
+}
+
+const EditProduct = ({ params }: Props) => {
     const router = useRouter();
+    const [product, setProduct] = useState<Product | null>(null);
+    const [name, setName] = useState('');
+    const [price, setPrice] = useState('');
+    const [imageUrl, setImageUrl] = useState('');
+    const [description, setDescription] = useState('');
+    const [tags, setTags] = useState<string[]>([]);
 
     useEffect(() => {
-        // 로컬 스토리지에서 상품 데이터 가져오기
         const storedProducts = localStorage.getItem('products');
         if (storedProducts) {
             const products = JSON.parse(storedProducts);
             const foundProduct = products[parseInt(params.id)];
             if (foundProduct) {
-                setProduct({
-                    ...foundProduct,
-                    tags: foundProduct.tags || []
-                });
+                setProduct(foundProduct);
+                setName(foundProduct.name);
+                setPrice(foundProduct.price.toString());
+                setImageUrl(foundProduct.imageUrl);
+                setDescription(foundProduct.description);
+                setTags(foundProduct.tags);
             }
         }
     }, [params.id]);
@@ -41,82 +48,86 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         const storedProducts = localStorage.getItem('products');
         if (storedProducts) {
             const products = JSON.parse(storedProducts);
-            products[parseInt(params.id)] = product;
+            products[parseInt(params.id)] = {
+                id: parseInt(params.id),
+                name,
+                price: parseFloat(price),
+                imageUrl,
+                description,
+                tags,
+            };
             localStorage.setItem('products', JSON.stringify(products));
-            router.push(`/products/${params.id}`);
+            router.push('/products');
         }
     };
 
-    const handlePriceRecommendation = (recommendedPrice: number) => {
-        setProduct({ ...product, price: recommendedPrice.toString() });
-    };
+    if (!product) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4 dark:text-white">상품 수정</h1>
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
+            <h1 className="text-2xl font-bold mb-4">상품 수정</h1>
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">상품명</label>
+                    <label className="block text-sm font-medium mb-1">상품명</label>
                     <input
                         type="text"
-                        value={product.name}
-                        onChange={(e) => setProduct({ ...product, name: e.target.value })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full p-2 border rounded dark:bg-gray-700"
                         required
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">가격</label>
+                    <label className="block text-sm font-medium mb-1">가격</label>
+                    <div className="flex space-x-2">
+                        <input
+                            type="number"
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
+                            className="w-full p-2 border rounded dark:bg-gray-700"
+                            required
+                        />
+                        <AIPriceRecommendation
+                            productName={name}
+                            onPriceRecommended={(recommendedPrice) => setPrice(recommendedPrice.toString())}
+                        />
+                    </div>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium mb-1">이미지 URL</label>
                     <input
-                        type="number"
-                        value={product.price}
-                        onChange={(e) => setProduct({ ...product, price: e.target.value })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-                        required
-                    />
-                    <AIPriceRecommendation productName={product.name} onPriceRecommended={handlePriceRecommendation} />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">이미지 URL</label>
-                    <input
-                        type="text"
-                        value={product.image}
-                        onChange={(e) => setProduct({ ...product, image: e.target.value })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                        type="url"
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
+                        className="w-full p-2 border rounded dark:bg-gray-700"
                         required
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">상품 설명</label>
+                    <label className="block text-sm font-medium mb-1">설명</label>
                     <textarea
-                        value={product.description}
-                        onChange={(e) => setProduct({ ...product, description: e.target.value })}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 h-32 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        className="w-full p-2 border rounded dark:bg-gray-700"
+                        rows={4}
+                        required
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">태그</label>
-                    <TagInput
-                        tags={product.tags}
-                        onChange={(newTags) => setProduct({ ...product, tags: newTags })}
-                    />
+                    <label className="block text-sm font-medium mb-1">태그</label>
+                    <TagInput tags={tags} onChange={setTags} />
                 </div>
-                <div className="flex justify-between">
-                    <button
-                        type="button"
-                        onClick={() => router.back()}
-                        className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
-                    >
-                        취소
-                    </button>
-                    <button
-                        type="submit"
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
-                    >
-                        수정하기
-                    </button>
-                </div>
+                <button
+                    type="submit"
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                >
+                    수정하기
+                </button>
             </form>
         </div>
     );
-}
+};
+
+export default EditProduct;
