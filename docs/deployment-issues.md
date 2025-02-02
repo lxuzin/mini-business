@@ -80,42 +80,108 @@ export async function generateStaticParams() {
 Error: Page "/products/[id]/page" cannot use both "use client" and export function "generateStaticParams()".
 ```
 
-## 2. 원인 분석
+## 2. 최종 해결 방법
 
-1. **동적 라우팅과 정적 내보내기의 충돌**: Next.js의 정적 내보내기는 빌드 시점에 모든 페이지를 생성해야 하는데, 동적 라우팅을 사용하는 페이지의 경우 가능한 모든 경로를 미리 알아야 합니다.
+결국 Next.js의 App Router에서 Pages Router로 마이그레이션하여 문제를 해결했습니다.
 
-2. **클라이언트 컴포넌트와 정적 생성의 충돌**: 'use client' 지시문을 사용하는 페이지에서는 `generateStaticParams`를 사용할 수 없습니다. 이는 클라이언트 사이드 렌더링과 정적 생성이 서로 상충되기 때문입니다.
+### 2.1. Pages Router로 마이그레이션
 
-3. **로컬 스토리지 의존성**: 우리 애플리케이션은 데이터를 로컬 스토리지에 저장하는데, 이는 클라이언트 사이드에서만 접근 가능합니다. 이로 인해 서버 사이드에서 정적 페이지를 생성하는 것이 불가능합니다.
+1. `src/pages` 디렉토리 생성
+2. 기존 `app` 디렉토리의 파일들을 pages 구조에 맞게 이동:
+   - `app/page.tsx` → `pages/index.tsx`
+   - `app/products/page.tsx` → `pages/products/index.tsx`
+   - `app/products/[id]/page.tsx` → `pages/products/[id]/index.tsx`
+   - `app/products/[id]/edit/page.tsx` → `pages/products/[id]/edit.tsx`
+   - `app/register/page.tsx` → `pages/register.tsx`
 
-## 3. 가능한 해결 방안
+3. 필수 페이지 추가:
+   ```typescript
+   // pages/_app.tsx
+   import type { AppProps } from 'next/app'
+   import '@/styles/globals.css'
 
-1. **서버 컴포넌트로 전환**: 동적 라우팅을 사용하는 페이지를 서버 컴포넌트로 전환하고, 클라이언트 상태 관리는 하위 컴포넌트로 분리합니다.
+   export default function App({ Component, pageProps }: AppProps) {
+     return <Component {...pageProps} />
+   }
+   ```
 
-2. **API 라우트 사용**: 로컬 스토리지 대신 API 라우트를 사용하여 데이터를 관리합니다.
+   ```typescript
+   // pages/_document.tsx
+   import { Html, Head, Main, NextScript } from 'next/document'
 
-3. **하이브리드 렌더링**: 정적으로 생성할 수 있는 페이지와 클라이언트 사이드에서 렌더링해야 하는 페이지를 분리합니다.
+   export default function Document() {
+     return (
+       <Html lang="ko">
+         <Head />
+         <body>
+           <Main />
+           <NextScript />
+         </body>
+       </Html>
+     )
+   }
+   ```
 
-4. **대체 호스팅 서비스 사용**: Vercel과 같은 Next.js에 최적화된 호스팅 서비스를 사용하는 것을 고려합니다.
+### 2.2. 정적 내보내기 설정
 
-## 4. 현재 상태
+1. `next.config.js` 설정:
+```javascript
+const nextConfig = {
+    output: 'export',
+    basePath: '/mini-business',
+    images: {
+        unoptimized: true,
+    },
+}
+```
 
-현재는 다음과 같은 방향으로 문제 해결을 진행 중입니다:
-1. GitHub Actions 워크플로우 제거
-2. 정적 내보내기 비활성화
-3. 서버 컴포넌트와 클라이언트 컴포넌트의 적절한 분리 구조 검토 중
+2. `package.json`의 build 스크립트 수정:
+```json
+{
+  "scripts": {
+    "build": "next build"
+  }
+}
+```
 
-## 5. 교훈
+### 2.3. GitHub Pages 배포
 
-1. Next.js 애플리케이션을 GitHub Pages에 배포할 때는 사전에 다음 사항을 고려해야 합니다:
-   - 동적 라우팅의 사용 여부
-   - 클라이언트 사이드 상태 관리 방식
-   - 서버 사이드 기능의 필요성
+1. 빌드 실행:
+```bash
+npm run build
+```
 
-2. GitHub Pages는 정적 웹사이트 호스팅에 최적화되어 있으므로, Next.js의 모든 기능을 활용하기 위해서는 다른 호스팅 서비스를 고려하는 것이 좋을 수 있습니다.
+2. gh-pages 브랜치 생성 및 전환:
+```bash
+git checkout -b gh-pages
+```
 
-## 6. 다음 단계
+3. 빌드 결과물 복사:
+```bash
+xcopy /E /I /Y out\* .
+```
 
-1. 서버 컴포넌트와 클라이언트 컴포넌트의 명확한 분리
-2. 데이터 관리 방식 재검토
-3. 대체 호스팅 서비스 조사
+4. 변경사항 커밋 및 푸시:
+```bash
+git add .
+git commit -m "Deploy to GitHub Pages"
+git push origin gh-pages --force
+```
+
+5. GitHub 저장소 설정:
+   - Settings → Pages
+   - Source를 'gh-pages' 브랜치로 설정
+   - Save 클릭
+
+## 3. 교훈
+
+1. Next.js 13+에서는 App Router와 Pages Router의 차이점을 잘 이해해야 합니다.
+2. 정적 사이트 생성 시 Pages Router가 더 안정적일 수 있습니다.
+3. GitHub Pages 배포 시 basePath 설정이 중요합니다.
+4. 'next export' 대신 'output: export' 설정을 사용해야 합니다.
+
+## 4. 참고사항
+
+1. 이 해결방법은 클라이언트 사이드 렌더링에 의존하는 애플리케이션에 적합합니다.
+2. 서버 사이드 렌더링이 필요한 경우 Vercel과 같은 호스팅 서비스를 고려해야 합니다.
+3. 동적 라우팅을 사용하는 경우, 페이지가 클라이언트 사이드에서 올바르게 렌더링되는지 확인해야 합니다.
