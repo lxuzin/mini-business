@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
+import { AIImageAnalysis } from '@/components/AIImageAnalysis';
+import { useRouter } from 'next/navigation';
 
 const Register: React.FC = () => {
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [image, setImage] = useState('');
+    const [description, setDescription] = useState('');
+    const router = useRouter();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const newProduct = { name, price, image };
+        const newProduct = { name, price, image, description };
 
         // 로컬 스토리지에 상품 추가
         const storedProducts = localStorage.getItem('products');
@@ -15,10 +19,12 @@ const Register: React.FC = () => {
         products.push(newProduct);
         localStorage.setItem('products', JSON.stringify(products));
 
-        // 입력 필드 초기화
-        setName('');
-        setPrice('');
-        setImage('');
+        // 상품 목록 페이지로 이동
+        router.push('/products');
+    };
+
+    const handleAIDescription = (aiDescription: string) => {
+        setDescription(aiDescription);
     };
 
     return (
@@ -30,7 +36,7 @@ const Register: React.FC = () => {
                     placeholder="상품 이름"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="border p-2 w-full"
+                    className="border p-2 w-full rounded"
                     required
                 />
                 <input
@@ -38,7 +44,7 @@ const Register: React.FC = () => {
                     placeholder="가격"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
-                    className="border p-2 w-full"
+                    className="border p-2 w-full rounded"
                     required
                 />
                 <input
@@ -46,10 +52,31 @@ const Register: React.FC = () => {
                     placeholder="이미지 URL"
                     value={image}
                     onChange={(e) => setImage(e.target.value)}
-                    className="border p-2 w-full"
+                    className="border p-2 w-full rounded"
                     required
                 />
-                <button type="submit" className="bg-blue-500 text-white p-2 rounded">등록하기</button>
+                {image && <AIImageAnalysis imageUrl={image} onAnalysisComplete={handleAIDescription} />}
+                <textarea
+                    placeholder="상품 설명"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="border p-2 w-full rounded h-32"
+                />
+                <div className="flex justify-between">
+                    <button
+                        type="button"
+                        onClick={() => router.push('/products')}
+                        className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                    >
+                        취소
+                    </button>
+                    <button
+                        type="submit"
+                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                    >
+                        등록하기
+                    </button>
+                </div>
             </form>
         </div>
     );
