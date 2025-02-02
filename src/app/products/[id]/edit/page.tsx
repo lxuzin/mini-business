@@ -14,11 +14,13 @@ interface Product {
     tags: string[];
 }
 
-export default function EditProduct({
-    params,
-}: {
-    params: { id: string };
-}) {
+interface PageProps {
+    params: {
+        id: string;
+    };
+}
+
+export default function EditProduct({ params }: PageProps) {
     const router = useRouter();
     const [product, setProduct] = useState<Product | null>(null);
     const [name, setName] = useState('');
