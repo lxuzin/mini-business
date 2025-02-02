@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ReviewSection } from '@/components/ReviewSection';
 
 interface Product {
     id: number;
     name: string;
     price: string;
     image: string;
+    description: string;
 }
 
 export default function ProductDetail({ params }: { params: { id: string } }) {
@@ -20,7 +22,7 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
             const products = JSON.parse(storedProducts);
             const foundProduct = products[parseInt(params.id)];
             if (foundProduct) {
-                setProduct(foundProduct);
+                setProduct({ ...foundProduct, id: parseInt(params.id) });
             }
         }
     }, [params.id]);
@@ -36,6 +38,9 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                 <div className="mt-4">
                     <h1 className="text-3xl font-bold">{product.name}</h1>
                     <p className="text-xl text-gray-700 mt-2">가격: {product.price}원</p>
+                    {product.description && (
+                        <p className="mt-4 text-gray-600">{product.description}</p>
+                    )}
                 </div>
                 <div className="mt-8 flex space-x-4">
                     <button
@@ -51,6 +56,9 @@ export default function ProductDetail({ params }: { params: { id: string } }) {
                         수정하기
                     </Link>
                 </div>
+                
+                {/* 리뷰 섹션 */}
+                <ReviewSection productId={product.id} />
             </div>
         </div>
     );
